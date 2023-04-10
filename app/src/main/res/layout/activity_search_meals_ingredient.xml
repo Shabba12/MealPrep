@@ -25,7 +25,7 @@
                 android:layout_margin="20dp"
                 android:fontFamily="@font/carter_one"
                 android:text="No Meals"
-                android:textSize="24sp" />
+                android:textSize="18sp" />
         </ScrollView>
 
     </LinearLayout>

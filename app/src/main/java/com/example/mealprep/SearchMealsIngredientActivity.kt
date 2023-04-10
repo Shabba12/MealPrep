@@ -1,15 +1,16 @@
 package com.example.mealprep
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -18,6 +19,8 @@ import java.net.URL
 
 class SearchMealsIngredientActivity : AppCompatActivity() {
     private lateinit var displayMeals:TextView
+    private val searchByMeal: String = "www.themealdb.com/api/json/v1/1/search.php?s="
+    private val searchByIngredient:String ="https://www.themealdb.com/api/json/v1/1/filter.php?i="
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search_meals_ingredient)
@@ -37,6 +40,7 @@ class SearchMealsIngredientActivity : AppCompatActivity() {
 
 
                 executeMeals(ingredientName)
+//                getRequest(searchByIngredient,ingredientName)
 
 
             }
@@ -45,14 +49,14 @@ class SearchMealsIngredientActivity : AppCompatActivity() {
 
     }
 
-    private fun executeMeals(ingredientName: String) {
+    private fun getRequest(refUrl: String, refName: String): JSONArray? {
+        var mealsArray:JSONArray? = null
         runBlocking {
             launch {
-                withContext(Dispatchers.IO) {
+                withContext(Dispatchers.IO){
                     try {
-                        val stb = StringBuilder()
-                        val url_string =
-                            "https://www.themealdb.com/api/json/v1/1/filter.php?i=$ingredientName"
+                        val stb = java.lang.StringBuilder()
+                        val url_string = refUrl+refName
                         val url = URL(url_string)
                         val con: HttpURLConnection =
                             url.openConnection() as HttpURLConnection
@@ -65,15 +69,61 @@ class SearchMealsIngredientActivity : AppCompatActivity() {
                         bf.close()
                         val responseString = stb.toString()
                         val json = JSONObject(responseString)
-                        val mealsArray = json.getJSONArray("meals")
+                        mealsArray = json.getJSONArray("meals")
+
+                    }catch (e: Exception){
+                        e.printStackTrace()
+                    }
+
+                }
+            }
+        }
+        return mealsArray
+
+    }
+
+    private fun executeMeals(ingredientName: String) {
+//        val stb = StringBuilder()
+        runBlocking {
+            launch {
+                withContext(Dispatchers.IO) {
+                    try {
+//                        val stb = StringBuilder()
+//                        val url_string =
+//                            "https://www.themealdb.com/api/json/v1/1/filter.php?i=$ingredientName"
+//                        val url = URL(url_string)
+//                        val con: HttpURLConnection =
+//                            url.openConnection() as HttpURLConnection
+//                        val bf = BufferedReader(InputStreamReader(con.inputStream))
+//                        var line: String? = bf.readLine()
+//                        while (line != null) {
+//                            stb.append(line + "\n")
+//                            line = bf.readLine()
+//                        }
+//                        bf.close()
+//                        val responseString = stb.toString()
+//                        val json = JSONObject(responseString)
+//                        val mealsArray = json.getJSONArray("meals")
+                        val mealsArray = getRequest(searchByIngredient,ingredientName)
                         val allMeal = java.lang.StringBuilder()
 
-                        for (i in 0 until mealsArray.length()) {
-                            val mealObj = mealsArray.getJSONObject(i)
-                            val mealName = mealObj.getString("strMeal")
-                            allMeal.append("${i + 1} $mealObj")
-                            println(mealName)
-                            allMeal.append("\n\n")
+                        if (mealsArray != null) {
+                            for (i in 0 until mealsArray.length()) {
+                                val mealObj = mealsArray.getJSONObject(i)
+                                val mealName = mealObj.getString("strMeal")
+                    //                            allMeal.append("${i + 1} $mealObj")
+                    //                            println(mealName)
+                    //                            allMeal.append("\n\n")
+
+                                val keysIterator: Iterator<String> = mealObj.keys()
+
+                                while (keysIterator.hasNext()) {
+                                    val key = keysIterator.next()
+                                    val value: String = mealObj.getString(key)
+                                    allMeal.append("$key: $value\n")
+                                }
+                                allMeal.append("\n")
+                            }
                         }
                         displayMeals.setText(allMeal)
                     } catch (e: Exception) {
