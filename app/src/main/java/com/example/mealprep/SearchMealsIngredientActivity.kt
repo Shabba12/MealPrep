@@ -6,6 +6,8 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.mealprep.entities.Ingredient
+import com.example.mealprep.entities.Meal
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -21,6 +23,7 @@ class SearchMealsIngredientActivity : AppCompatActivity() {
     private lateinit var displayMeals:TextView
     private val searchByMeal: String = "https://www.themealdb.com/api/json/v1/1/search.php?s="
     private val searchByIngredient:String ="https://www.themealdb.com/api/json/v1/1/filter.php?i="
+    private lateinit var storeMealObjArray: MutableList<JSONObject?>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search_meals_ingredient)
@@ -29,6 +32,87 @@ class SearchMealsIngredientActivity : AppCompatActivity() {
         val retrieveMeals = findViewById<Button>(R.id.retrieveBtn)
         val saveDbBtn = findViewById<Button>(R.id.saveMealsBtn)
         val ingredientView = findViewById<EditText>(R.id.ingredientView)
+        storeMealObjArray = mutableListOf()
+
+        saveDbBtn.setOnClickListener {
+            runBlocking {
+                launch {
+                    val db = AppDatabase.getDatabase(context = applicationContext)
+                    var count = 0
+                    for (i in storeMealObjArray) {
+                        val MealId = i?.getString("idMeal")?.toInt()
+                        val Meal = i?.getString("strMeal")
+//                        println(i.getString("DrinkAlternate"))
+                        val DrinkAlternate = i?.getString("strDrinkAlternate")
+//                        println(i.getString("Category"))
+                        val Category = i?.getString("strCategory")
+//                        println(i.getString("Area"))
+                        val Area = i?.getString("strArea")
+//                        println(i.getString("Instructions"))
+                        val Instructions = i?.getString("strInstructions")
+//                        println(i.getString("MealThumb"))
+                        val MealThumb = i?.getString("strMealThumb")
+//                        println(i.getString("Tags"))
+                        val Tags = i?.getString("strTags")
+//                        println(i.getString("Youtube"))
+                        val Youtube = i?.getString("strYoutube")
+                        val Source = i?.getString("strSource")
+                        val ImageSource = i?.getString("strImageSource")
+                        val CreativeCommonsConfirmed =
+                            i?.getString("strCreativeCommonsConfirmed")
+                        val dateModified = i?.getString("dateModified")
+
+                        val meal = Meal(
+                            id = MealId,
+                            mealName = Meal,
+                            drinkAlternate = DrinkAlternate,
+                            category = Category,
+                            area = Area,
+                            instruction = Instructions,
+                            mealThumb = MealThumb,
+                            tags = Tags,
+                            youtube = Youtube,
+                            source = Source,
+                            imageSource = ImageSource,
+                            creativeCommonsConfirmed = CreativeCommonsConfirmed,
+                            dateModified = dateModified
+                        )
+                        db.mealDao().insertMeal(meal)
+
+
+                        val ingredients: MutableList<Ingredient> = mutableListOf()
+
+                        if (i != null) {
+                            for (key in i.keys()) {
+                                if (key.contains("strIngredient")) {
+                                    count++ // Increment the counter
+                                }
+                            }
+                        }
+                        println(count)
+                        val dupObj = i
+                        for (i in 1 until count + 1) {
+                            val ingredient = dupObj?.getString("strIngredient${i}")
+                            val measure = dupObj?.getString("strMeasure${i}")
+//                            println("$ingredient - $measure")
+                            ingredients.add(
+                                Ingredient(
+                                    name = ingredient,
+                                    measure = measure,
+                                    mealId = meal.id
+                                )
+                            )
+                        }
+                        for (i in ingredients) {
+                            db.ingredientDao().insertIngredient(i)
+                        }
+                        count = 0
+                    }
+                }
+            }
+            Toast.makeText(this,"data saved!",Toast.LENGTH_SHORT).show()
+            storeMealObjArray.clear()
+        }
 
 
         retrieveMeals.setOnClickListener {
@@ -117,6 +201,7 @@ class SearchMealsIngredientActivity : AppCompatActivity() {
 
                                 val singleMealArray = getRequest(searchByMeal,mealName)
                                 val singleMealObj = singleMealArray?.getJSONObject(0)
+                                storeMealObjArray?.add(singleMealObj)
 
                                 val keysIterator: Iterator<String> = singleMealObj?.keys() as Iterator<String>
 

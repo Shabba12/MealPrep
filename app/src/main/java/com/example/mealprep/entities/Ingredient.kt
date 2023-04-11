@@ -14,7 +14,7 @@ import androidx.room.PrimaryKey
 )
 data class Ingredient(
     @PrimaryKey (autoGenerate = true) val id: Int = 0,
-    val name: String,
-    val measure: String,
-    val mealId: Int
+    val name: String?,
+    val measure: String?,
+    val mealId: Int?
 )
