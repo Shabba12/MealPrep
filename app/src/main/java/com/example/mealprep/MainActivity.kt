@@ -8,6 +8,9 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.widget.AppCompatButton
 import androidx.room.Room
+import com.example.mealprep.entities.Ingredient
+import com.example.mealprep.entities.Meal
+
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
@@ -30,9 +33,30 @@ class MainActivity : AppCompatActivity() {
         }
         addDbBtn.setOnClickListener {
             Toast.makeText(this, "Data Saved!", Toast.LENGTH_SHORT).show()
+            val db = AppDatabase.getDatabase(context = applicationContext)
 
             runBlocking {
                 launch {
+
+
+                    val meal = Meal(1111,"Spaghetti Bolognese", "Pasta")
+                    db.mealDao().insertMeal(meal)
+
+                    val ingredients = listOf(
+                        Ingredient(name = "Spaghetti", measure = "200g", mealId = meal.id),
+                        Ingredient(name = "Beef mince", measure = "500g", mealId = meal.id),
+                        Ingredient(name = "Onion", measure = "1", mealId = meal.id),
+                        Ingredient(name = "Garlic", measure = "2 cloves", mealId = meal.id),
+                        Ingredient(name = "Tomato paste", measure = "2 tbsp", mealId = meal.id),
+                        Ingredient(name = "Canned tomatoes", measure = "400g", mealId = meal.id),
+                        Ingredient(name = "Olive oil", measure = "2 tbsp", mealId = meal.id),
+                        Ingredient(name = "Salt", measure = "To taste", mealId = meal.id),
+                        Ingredient(name = "Black pepper", measure = "To taste", mealId = meal.id)
+                    )
+
+                    ingredients.forEach{
+                        ingredient -> db.ingredientDao().insertIngredient(ingredient)
+                    }
 
 //                     //Get the JSON string from the file
 //                    val jsonString = application.assets.open("data.json").bufferedReader().use { it.readText() }
