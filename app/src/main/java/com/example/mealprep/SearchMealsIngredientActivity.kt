@@ -19,7 +19,7 @@ import java.net.URL
 
 class SearchMealsIngredientActivity : AppCompatActivity() {
     private lateinit var displayMeals:TextView
-    private val searchByMeal: String = "www.themealdb.com/api/json/v1/1/search.php?s="
+    private val searchByMeal: String = "https://www.themealdb.com/api/json/v1/1/search.php?s="
     private val searchByIngredient:String ="https://www.themealdb.com/api/json/v1/1/filter.php?i="
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -115,11 +115,14 @@ class SearchMealsIngredientActivity : AppCompatActivity() {
                     //                            println(mealName)
                     //                            allMeal.append("\n\n")
 
-                                val keysIterator: Iterator<String> = mealObj.keys()
+                                val singleMealArray = getRequest(searchByMeal,mealName)
+                                val singleMealObj = singleMealArray?.getJSONObject(0)
+
+                                val keysIterator: Iterator<String> = singleMealObj?.keys() as Iterator<String>
 
                                 while (keysIterator.hasNext()) {
                                     val key = keysIterator.next()
-                                    val value: String = mealObj.getString(key)
+                                    val value: String = singleMealObj.getString(key)
                                     allMeal.append("$key: $value\n")
                                 }
                                 allMeal.append("\n")

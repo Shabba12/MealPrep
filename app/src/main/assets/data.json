@@ -1,6 +1,7 @@
 {
    "Meals":[
       {
+         "mealId": "1111",
          "Meal":"Sweet and Sour Pork",
          "DrinkAlternate":null,
          "Category":"Pork",
@@ -35,6 +36,7 @@
          "dateModified":null
       },
       {
+         "mealId": "2222",
          "Meal":"Chicken Marengo",
          "DrinkAlternate":null,
          "Category":"Chicken",
@@ -63,6 +65,7 @@
          "dateModified":null
       },
       {
+         "mealId": "3333",
          "Meal":"Beef Banh Mi Bowls with Sriracha Mayo, Carrot & Pickled Cucumber",
          "DrinkAlternate":null,
          "Category":"Beef",
@@ -95,6 +98,7 @@
          "dateModified":null
       },
       {
+         "mealId": "4444",
          "Meal":"Leblebi Soup",
          "DrinkAlternate":null,
          "Category":"Vegetarian",
