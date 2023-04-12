@@ -24,6 +24,12 @@ class MainActivity : AppCompatActivity() {
 
         val addDbBtn = findViewById<AppCompatButton>(R.id.addDbBtn)
         val searchIngBtn = findViewById<AppCompatButton>(R.id.searchIngBtn)
+        val searchMealBtn = findViewById<Button>(R.id.searchMealsBtn)
+
+        searchMealBtn.setOnClickListener {
+            val intent = Intent(this, SearchForMealsActivity::class.java)
+            startActivity(intent)
+        }
 
 
 
@@ -165,7 +171,7 @@ class MainActivity : AppCompatActivity() {
                         println("---------------------------------------------------------------")
                         println("---------------------------------------------------------------")
                     }
-                    // Get all meals from the database
+//                     //Get all meals from the database
 //                    val allMeals = db.mealDao().getAllMeals()
 //                    allMeals.forEach { meal ->
 //                        println("${meal.name} (${meal.category}):")

@@ -13,4 +13,11 @@ interface MealDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertMeal(meal: Meal)
+
+    @Query("SELECT * FROM meal WHERE id = :id")
+    fun getMealById(id: Int?): Meal
+
+
+    @Query("SELECT * FROM meal WHERE mealName LIKE '%' || :name || '%'")
+    fun getMealsWithNameMatching(name: String): List<Meal>
 }

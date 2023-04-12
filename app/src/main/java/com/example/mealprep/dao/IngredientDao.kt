@@ -9,8 +9,11 @@ import com.example.mealprep.entities.Ingredient
 @Dao
 interface IngredientDao {
     @Query("SELECT * FROM ingredient WHERE mealId = :mealId")
-    fun getIngredientsForMeal(mealId: Int): List<Ingredient>
+    fun getIngredientsForMeal(mealId: Int?): List<Ingredient>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertIngredient(ingredient: Ingredient):Long
+
+    @Query("SELECT * FROM ingredient WHERE name LIKE '%' || :name || '%'")
+    fun getIngredientsWithNameMatching(name: String): List<Ingredient>
 }

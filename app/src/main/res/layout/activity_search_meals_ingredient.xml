@@ -46,7 +46,8 @@
             android:background="@drawable/textbox_theme"
             android:fontFamily="@font/carter_one"
             android:hint="Enter Ingredient"
-            android:padding="3dp" />
+            android:padding="3dp"
+            android:textSize="15dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
