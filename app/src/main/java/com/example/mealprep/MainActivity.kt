@@ -165,6 +165,17 @@ class MainActivity : AppCompatActivity() {
                         println("---------------------------------------------------------------")
                         println("---------------------------------------------------------------")
                     }
+                    // Get all meals from the database
+//                    val allMeals = db.mealDao().getAllMeals()
+//                    allMeals.forEach { meal ->
+//                        println("${meal.name} (${meal.category}):")
+//                        val ingredients = db.ingredientDao().getIngredientsForMeal(meal.id)
+//                        ingredients.forEach { ingredient ->
+//                            println("- ${ingredient.name}: ${ingredient.measure}")
+//                        }
+//                    }
+//
+//                    db.close()
                 }
             }
         }

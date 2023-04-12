@@ -38,6 +38,7 @@ class SearchMealsIngredientActivity : AppCompatActivity() {
             runBlocking {
                 launch {
                     val db = AppDatabase.getDatabase(context = applicationContext)
+                    db.clearAllTables()
                     var count = 0
                     for (i in storeMealObjArray) {
                         val MealId = i?.getString("idMeal")?.toInt()
