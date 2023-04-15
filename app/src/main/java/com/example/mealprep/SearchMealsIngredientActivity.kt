@@ -1,5 +1,6 @@
 package com.example.mealprep
 
+
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -28,7 +29,7 @@ class SearchMealsIngredientActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search_meals_ingredient)
 
-        displayMeals = findViewById<TextView>(R.id.displayMealsView)
+        displayMeals = findViewById(R.id.displayMealsView)
         val retrieveMeals = findViewById<Button>(R.id.retrieveBtn)
         val saveDbBtn = findViewById<Button>(R.id.saveMealsBtn)
         val ingredientView = findViewById<EditText>(R.id.ingredientView)
@@ -62,6 +63,9 @@ class SearchMealsIngredientActivity : AppCompatActivity() {
                         val CreativeCommonsConfirmed =
                             i?.getString("strCreativeCommonsConfirmed")
                         val dateModified = i?.getString("dateModified")
+
+
+
 
                         val meal = Meal(
                             id = MealId,
@@ -130,9 +134,10 @@ class SearchMealsIngredientActivity : AppCompatActivity() {
 
             }
         }
-
-
     }
+
+
+
 
     private fun getRequest(refUrl: String, refName: String): JSONArray? {
         var mealsArray:JSONArray? = null

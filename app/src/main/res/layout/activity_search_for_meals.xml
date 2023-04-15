@@ -39,7 +39,7 @@
             android:id="@+id/mealChar"
             android:layout_width="200dp"
             android:layout_height="48dp"
-            android:layout_marginBottom="60dp"
+            android:layout_marginTop="20dp"
             android:background="@drawable/textbox_theme"
             android:fontFamily="@font/carter_one"
             android:gravity="center_vertical"
@@ -47,13 +47,34 @@
             android:padding="3dp"
             android:textSize="15dp" />
 
-        <Button
-            android:id="@+id/searchMealBtn"
-            android:layout_width="200dp"
-            android:layout_height="50dp"
-            android:background="@drawable/button_theme"
-            android:fontFamily="@font/carter_one"
-            android:text="Search for meal "
-            android:textColor="@color/white" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/searchMealDbBtn"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="20dp"
+                android:background="@drawable/button_theme"
+                android:fontFamily="@font/carter_one"
+                android:padding="10dp"
+                android:text="Search for meal in DB"
+                android:textColor="@color/white" />
+
+            <Button
+                android:id="@+id/searchForMealWebBtn"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="20dp"
+                android:background="@drawable/button_theme"
+                android:fontFamily="@font/carter_one"
+                android:padding="10dp"
+                android:text="search for meal in web"
+                android:textColor="@color/white" />
+        </LinearLayout>
+
     </LinearLayout>
 </LinearLayout>
