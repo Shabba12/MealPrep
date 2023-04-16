@@ -1,5 +1,6 @@
 package com.example.mealprep
 
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import androidx.appcompat.app.AppCompatActivity
@@ -65,67 +66,82 @@ class SearchForMealsActivity : AppCompatActivity() {
             if (mealChar.toString() ==""){
                 Toast.makeText(this,"Enter Text!",Toast.LENGTH_SHORT).show()
             }else{
-                Thread{
-                    try {
-                        val allMeal = SpannableStringBuilder()
-                        val db = AppDatabase.getDatabase(context = applicationContext)
-                        // Search for meals or ingredients based on partial string matches
-                        val query = mealChar.text.toString().trim() // example search query
-                        val printedMeals = HashSet<Meal>()
+                runBlocking{
+                    launch {
+                        withContext(Dispatchers.IO){
+                            try {
+                                val allMeal = SpannableStringBuilder()
+                                val db = AppDatabase.getDatabase(context = applicationContext)
+                                // Search for meals or ingredients based on partial string matches
+                                val query = mealChar.text.toString().trim() // example search query
+                                val printedMeals = HashSet<Meal>()
 
-                        // Search for meals or ingredients containing the query string
-                        val mealsWithMatchingName = db.mealDao().getMealsWithNameMatching(query)
-                        mealsWithMatchingName.forEach { meal ->
-                            if (printedMeals.add(meal)) {
-                                allMeal.append("Found meal with matching name: ${meal.mealName}\n")
-                                val imageUrl = URL(meal.mealThumb)
-                                val inputStream = imageUrl.openConnection().getInputStream()
-                                val bitmap = BitmapFactory.decodeStream(inputStream)
-                                val drawable = BitmapDrawable(resources, bitmap)
-                                drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
-                                allMeal.setSpan(ImageSpan(drawable), allMeal.length - 1, allMeal.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                                allMeal.append("\n")
+                                // Search for meals or ingredients containing the query string
+                                val mealsWithMatchingName = db.mealDao().getMealsWithNameMatching(query)
+                                mealsWithMatchingName.forEach { meal ->
+                                    if (printedMeals.add(meal)) {
+                                        val imageUrl = meal.mealThumb
+                                        val inputStream = URL(imageUrl).openStream()
+                                        val downloadedBitmap = BitmapFactory.decodeStream(inputStream)
+                                        val thumbnailSize = 300 // Change this to adjust the size of the thumbnail
+                                        val thumbnailBitmap = Bitmap.createScaledBitmap(downloadedBitmap, thumbnailSize, thumbnailSize, false)
+                                        val imageSpan = ImageSpan(applicationContext,thumbnailBitmap)
+                                        val start  = allMeal.length
+                                        allMeal.append("Found meal with matching name: ${meal.mealName}\n")
+                                        allMeal.setSpan(imageSpan,start,allMeal.length,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                                        allMeal.append("\nFound meal with matching name: ${meal.mealName}\n")
+                                        allMeal.append("idMeal: ${meal.id}\nstrMeal: ${meal.mealName}\nstrDrinkAlternate: ${meal.drinkAlternate}\nstrCategory: ${meal.category}\nstrArea: ${meal.area}\nstrInstructions: ${meal.instruction}\nstrMealThumb: ${meal.mealThumb}\nstrTags: ${meal.tags}\nstrYoutube: ${meal.youtube}\n")
 
+                                        val ingredients = db.ingredientDao().getIngredientsForMeal(meal.id)
+                                        var count = 1
+                                        ingredients.forEach { ingredient ->
+                                            allMeal.append("strIngredient$count: ${ingredient.name}\nstrMeasure$count: ${ingredient.measure}\n")
+                                            count++
+                                        }
+                                        allMeal.append("strSource: ${meal.source}\nstrImageSource: ${meal.imageSource}\nstrCreativeCommonsConfirmed: ${meal.creativeCommonsConfirmed}\ndateModified: ${meal.dateModified}\n")
+//                                        allMeal.setSpan(imageSpan,start,start+1,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                                        allMeal.append("\n\n")
+                                    }
 
-                                allMeal.append("idMeal: ${meal.id}\nstrMeal: ${meal.mealName}\nstrDrinkAlternate: ${meal.drinkAlternate}\nstrCategory: ${meal.category}\nstrArea: ${meal.area}\nstrInstructions: ${meal.instruction}\nstrMealThumb: ${meal.mealThumb}\nstrTags: ${meal.tags}\nstrYoutube: ${meal.youtube}\n")
-                                val ingredients = db.ingredientDao().getIngredientsForMeal(meal.id)
-                                var count = 1
-                                ingredients.forEach { ingredient ->
-                                    allMeal.append("strIngredient$count: ${ingredient.name}\nstrMeasure$count: ${ingredient.measure}\n")
-                                    count++
                                 }
-                                allMeal.append("strSource: ${meal.source}\nstrImageSource: ${meal.imageSource}\nstrCreativeCommonsConfirmed: ${meal.creativeCommonsConfirmed}\ndateModified: ${meal.dateModified}\n")
-                                allMeal.append("\n\n")
-                            }
 
-                        }
+                                val ingredientsWithMatchingName = db.ingredientDao().getIngredientsWithNameMatching(query)
+                                ingredientsWithMatchingName.forEach { ingredient ->
+                                    val meal = db.mealDao().getMealById(ingredient.mealId)
+                                    if (printedMeals.add(meal)) {
+                                        val imageIngiUrl = meal.mealThumb
+                                        val inputStreamIngi = URL(imageIngiUrl).openStream()
+                                        val downloadedBitmapIngi = BitmapFactory.decodeStream(inputStreamIngi)
+                                        val thumbnailSize = 300 // Change this to adjust the size of the thumbnail
+                                        val thumbnailBitmap = Bitmap.createScaledBitmap(downloadedBitmapIngi, thumbnailSize, thumbnailSize, false)
+                                        val imageSpan = ImageSpan(applicationContext,thumbnailBitmap)
+                                        val startIngi  = allMeal.length
+                                        allMeal.append("Found meal with matching name: ${meal.mealName}\n")
+                                        allMeal.setSpan(imageSpan,startIngi,allMeal.length,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
 
-                        val ingredientsWithMatchingName = db.ingredientDao().getIngredientsWithNameMatching(query)
-                        ingredientsWithMatchingName.forEach { ingredient ->
-                            val meal = db.mealDao().getMealById(ingredient.mealId)
-                            if (printedMeals.add(meal)) {
-                                allMeal.append("Found meal with matching ingredient: ${meal.mealName}\n")
-                                allMeal.append("idMeal: ${meal.id}\nstrMeal: ${meal.mealName}\nstrDrinkAlternate: ${meal.drinkAlternate}\nstrCategory: ${meal.category}\nstrArea: ${meal.area}\nstrInstructions: ${meal.instruction}\nstrMealThumb: ${meal.mealThumb}\nstrTags: ${meal.tags}\nstrYoutube: ${meal.youtube}\n")
-                                val ingredients = db.ingredientDao().getIngredientsForMeal(meal.id)
-                                var count = 1
-                                ingredients.forEach { ingredient ->
-//                            println("- ${ingredient.name}: ${ingredient.measure}")
-                                    allMeal.append("strIngredient$count: ${ingredient.name}\nstrMeasure$count: ${ingredient.measure}\n")
-                                    count++
+                                        allMeal.append("\nFound meal with matching ingredient: ${meal.mealName}\n")
+                                        allMeal.append("idMeal: ${meal.id}\nstrMeal: ${meal.mealName}\nstrDrinkAlternate: ${meal.drinkAlternate}\nstrCategory: ${meal.category}\nstrArea: ${meal.area}\nstrInstructions: ${meal.instruction}\nstrMealThumb: ${meal.mealThumb}\nstrTags: ${meal.tags}\nstrYoutube: ${meal.youtube}\n")
+                                        val ingredients = db.ingredientDao().getIngredientsForMeal(meal.id)
+                                        var count = 1
+                                        ingredients.forEach { ingredient ->
+                                            allMeal.append("strIngredient$count: ${ingredient.name}\nstrMeasure$count: ${ingredient.measure}\n")
+                                            count++
+                                        }
+                                        allMeal.append("strSource: ${meal.source}\nstrImageSource: ${meal.imageSource}\nstrCreativeCommonsConfirmed: ${meal.creativeCommonsConfirmed}\ndateModified: ${meal.dateModified}\n")
+                                        allMeal.append("\n\n")
+                                    }
+
                                 }
-                                allMeal.append("strSource: ${meal.source}\nstrImageSource: ${meal.imageSource}\nstrCreativeCommonsConfirmed: ${meal.creativeCommonsConfirmed}\ndateModified: ${meal.dateModified}\n")
-                                allMeal.append("\n\n")
+                                retrieveSearchByChar.post {
+                                    retrieveSearchByChar.text = allMeal
+                                }
+
+                            }catch (e: Exception){
+                                e.printStackTrace()
                             }
-
                         }
-                        retrieveSearchByChar.post {
-                            retrieveSearchByChar.setText(allMeal)
-                        }
-
-                    }catch (e: Exception){
-                        e.printStackTrace()
                     }
-                }.start()
+                }
             }
         }
     }
