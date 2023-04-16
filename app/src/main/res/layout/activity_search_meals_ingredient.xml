@@ -64,7 +64,7 @@
                 android:background="@drawable/button_theme"
                 android:fontFamily="@font/carter_one"
                 android:text="Retrieve Meals "
-                android:textColor="@color/white" />
+                android:textColor="#FFECE0" />
 
             <Button
                 android:id="@+id/saveMealsBtn"
@@ -75,7 +75,7 @@
                 android:background="@drawable/button_theme"
                 android:fontFamily="@font/carter_one"
                 android:text="Save meals to DB"
-                android:textColor="@color/white" />
+                android:textColor="#FFECE0" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

@@ -23,7 +23,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="20dp"
                 android:fontFamily="@font/carter_one"
-                android:text="TextView"
+                android:text="No Meals"
                 android:textSize="18sp" />
         </ScrollView>
     </LinearLayout>
@@ -44,6 +44,7 @@
             android:fontFamily="@font/carter_one"
             android:gravity="center_vertical"
             android:hint="Enter Any String"
+            android:inputType="textShortMessage"
             android:padding="3dp"
             android:textSize="15dp" />
 
@@ -62,7 +63,7 @@
                 android:fontFamily="@font/carter_one"
                 android:padding="10dp"
                 android:text="Search for meal in DB"
-                android:textColor="@color/white" />
+                android:textColor="#FFECE0" />
 
             <Button
                 android:id="@+id/searchForMealWebBtn"
@@ -73,7 +74,7 @@
                 android:fontFamily="@font/carter_one"
                 android:padding="10dp"
                 android:text="search for meal in web"
-                android:textColor="@color/white" />
+                android:textColor="#FFECE0" />
         </LinearLayout>
 
     </LinearLayout>

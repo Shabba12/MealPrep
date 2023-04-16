@@ -17,6 +17,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import java.io.Serializable
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -25,15 +26,28 @@ class SearchMealsIngredientActivity : AppCompatActivity() {
     private val searchByMeal: String = "https://www.themealdb.com/api/json/v1/1/search.php?s="
     private val searchByIngredient:String ="https://www.themealdb.com/api/json/v1/1/filter.php?i="
     private lateinit var storeMealObjArray: MutableList<JSONObject?>
+    private var allMeal = StringBuilder()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search_meals_ingredient)
+
+        if (savedInstanceState != null) {
+            val savedState = savedInstanceState.getSerializable("savedState") as? Map<*, *>
+            if (savedState != null) {
+                allMeal.append(savedState["allMeal"])
+                storeMealObjArray = savedState["storeMealObjArray"] as MutableList<JSONObject?>
+            }
+        }
 
         displayMeals = findViewById(R.id.displayMealsView)
         val retrieveMeals = findViewById<Button>(R.id.retrieveBtn)
         val saveDbBtn = findViewById<Button>(R.id.saveMealsBtn)
         val ingredientView = findViewById<EditText>(R.id.ingredientView)
         storeMealObjArray = mutableListOf()
+
+        if (allMeal.isNotEmpty()){
+            displayMeals.text = allMeal
+        }
 
         saveDbBtn.setOnClickListener {
             runBlocking {
@@ -194,7 +208,7 @@ class SearchMealsIngredientActivity : AppCompatActivity() {
 //                        val json = JSONObject(responseString)
 //                        val mealsArray = json.getJSONArray("meals")
                         val mealsArray = getRequest(searchByIngredient,ingredientName)
-                        val allMeal = java.lang.StringBuilder()
+//                        val allMeal = java.lang.StringBuilder()
 
                         if (mealsArray != null) {
                             for (i in 0 until mealsArray.length()) {
@@ -225,6 +239,19 @@ class SearchMealsIngredientActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        // Save the variables in a map
+        val savedState = mapOf(
+            "allMeal" to allMeal,
+            "storeMealObjArray" to storeMealObjArray
+
+        )
+
+        // Store the map in the bundle
+        outState.putSerializable("savedState", savedState as Serializable)
     }
 
 

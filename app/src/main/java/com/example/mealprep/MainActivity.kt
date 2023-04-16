@@ -184,6 +184,8 @@ class MainActivity : AppCompatActivity() {
 //                    db.close()
                 }
             }
+            Toast.makeText(this,"data saved!",Toast.LENGTH_SHORT).show()
+            println("data saved!")
         }
     }
 }

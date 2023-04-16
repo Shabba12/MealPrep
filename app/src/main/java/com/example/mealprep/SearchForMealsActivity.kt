@@ -2,7 +2,6 @@ package com.example.mealprep
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.drawable.BitmapDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Spannable
@@ -21,25 +20,38 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import java.io.Serializable
 import java.lang.StringBuilder
 import java.net.HttpURLConnection
 import java.net.URL
 
 class SearchForMealsActivity : AppCompatActivity() {
+    private var allMeal = StringBuilder()
+    private var allMealSpan = SpannableStringBuilder()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search_for_meals)
+
+        if (savedInstanceState != null) {
+            val savedState = savedInstanceState.getSerializable("savedState") as? Map<*, *>
+            if (savedState != null) {
+                allMeal.append(savedState["allMeal"])
+            }
+        }
 
         val mealChar = findViewById<EditText>(R.id.mealChar)
         val searchMealBtn = findViewById<Button>(R.id.searchMealDbBtn)
         val searchForMealWebBtn = findViewById<Button>(R.id.searchForMealWebBtn)
         val retrieveSearchByChar = findViewById<TextView>(R.id.retrieveSearchByChar)
+        if (allMeal.isNotEmpty()){
+            retrieveSearchByChar.text = allMeal
+        }
 
         searchForMealWebBtn.setOnClickListener {
             if (mealChar.toString() ==""){
                 Toast.makeText(this,"Enter Text!",Toast.LENGTH_SHORT).show()
             }else{
-                val allMeal = StringBuilder()
+//                val allMeal = StringBuilder()
                 val searchByMeal: String = "https://www.themealdb.com/api/json/v1/1/search.php?s="
                 val mealArray = getRequest(searchByMeal,mealChar.text.toString().trim())
                 if (mealArray != null) {
@@ -70,7 +82,7 @@ class SearchForMealsActivity : AppCompatActivity() {
                     launch {
                         withContext(Dispatchers.IO){
                             try {
-                                val allMeal = SpannableStringBuilder()
+//                                val allMealSpan = SpannableStringBuilder()
                                 val db = AppDatabase.getDatabase(context = applicationContext)
                                 // Search for meals or ingredients based on partial string matches
                                 val query = mealChar.text.toString().trim() // example search query
@@ -86,21 +98,21 @@ class SearchForMealsActivity : AppCompatActivity() {
                                         val thumbnailSize = 300 // Change this to adjust the size of the thumbnail
                                         val thumbnailBitmap = Bitmap.createScaledBitmap(downloadedBitmap, thumbnailSize, thumbnailSize, false)
                                         val imageSpan = ImageSpan(applicationContext,thumbnailBitmap)
-                                        val start  = allMeal.length
-                                        allMeal.append("Found meal with matching name: ${meal.mealName}\n")
-                                        allMeal.setSpan(imageSpan,start,allMeal.length,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                                        allMeal.append("\nFound meal with matching name: ${meal.mealName}\n")
-                                        allMeal.append("idMeal: ${meal.id}\nstrMeal: ${meal.mealName}\nstrDrinkAlternate: ${meal.drinkAlternate}\nstrCategory: ${meal.category}\nstrArea: ${meal.area}\nstrInstructions: ${meal.instruction}\nstrMealThumb: ${meal.mealThumb}\nstrTags: ${meal.tags}\nstrYoutube: ${meal.youtube}\n")
+                                        val start  = allMealSpan.length
+                                        allMealSpan.append("Found meal with matching name: ${meal.mealName}\n")
+                                        allMealSpan.setSpan(imageSpan,start,allMealSpan.length,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                                        allMealSpan.append("\nFound meal with matching name: ${meal.mealName}\n")
+                                        allMealSpan.append("idMeal: ${meal.id}\nstrMeal: ${meal.mealName}\nstrDrinkAlternate: ${meal.drinkAlternate}\nstrCategory: ${meal.category}\nstrArea: ${meal.area}\nstrInstructions: ${meal.instruction}\nstrMealThumb: ${meal.mealThumb}\nstrTags: ${meal.tags}\nstrYoutube: ${meal.youtube}\n")
 
                                         val ingredients = db.ingredientDao().getIngredientsForMeal(meal.id)
                                         var count = 1
                                         ingredients.forEach { ingredient ->
-                                            allMeal.append("strIngredient$count: ${ingredient.name}\nstrMeasure$count: ${ingredient.measure}\n")
+                                            allMealSpan.append("strIngredient$count: ${ingredient.name}\nstrMeasure$count: ${ingredient.measure}\n")
                                             count++
                                         }
-                                        allMeal.append("strSource: ${meal.source}\nstrImageSource: ${meal.imageSource}\nstrCreativeCommonsConfirmed: ${meal.creativeCommonsConfirmed}\ndateModified: ${meal.dateModified}\n")
+                                        allMealSpan.append("strSource: ${meal.source}\nstrImageSource: ${meal.imageSource}\nstrCreativeCommonsConfirmed: ${meal.creativeCommonsConfirmed}\ndateModified: ${meal.dateModified}\n")
 //                                        allMeal.setSpan(imageSpan,start,start+1,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                                        allMeal.append("\n\n")
+                                        allMealSpan.append("\n\n")
                                     }
 
                                 }
@@ -115,25 +127,25 @@ class SearchForMealsActivity : AppCompatActivity() {
                                         val thumbnailSize = 300 // Change this to adjust the size of the thumbnail
                                         val thumbnailBitmap = Bitmap.createScaledBitmap(downloadedBitmapIngi, thumbnailSize, thumbnailSize, false)
                                         val imageSpan = ImageSpan(applicationContext,thumbnailBitmap)
-                                        val startIngi  = allMeal.length
-                                        allMeal.append("Found meal with matching name: ${meal.mealName}\n")
-                                        allMeal.setSpan(imageSpan,startIngi,allMeal.length,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                                        val startIngi  = allMealSpan.length
+                                        allMealSpan.append("Found meal with matching name: ${meal.mealName}\n")
+                                        allMealSpan.setSpan(imageSpan,startIngi,allMealSpan.length,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
 
-                                        allMeal.append("\nFound meal with matching ingredient: ${meal.mealName}\n")
-                                        allMeal.append("idMeal: ${meal.id}\nstrMeal: ${meal.mealName}\nstrDrinkAlternate: ${meal.drinkAlternate}\nstrCategory: ${meal.category}\nstrArea: ${meal.area}\nstrInstructions: ${meal.instruction}\nstrMealThumb: ${meal.mealThumb}\nstrTags: ${meal.tags}\nstrYoutube: ${meal.youtube}\n")
+                                        allMealSpan.append("\nFound meal with matching ingredient: ${meal.mealName}\n")
+                                        allMealSpan.append("idMeal: ${meal.id}\nstrMeal: ${meal.mealName}\nstrDrinkAlternate: ${meal.drinkAlternate}\nstrCategory: ${meal.category}\nstrArea: ${meal.area}\nstrInstructions: ${meal.instruction}\nstrMealThumb: ${meal.mealThumb}\nstrTags: ${meal.tags}\nstrYoutube: ${meal.youtube}\n")
                                         val ingredients = db.ingredientDao().getIngredientsForMeal(meal.id)
                                         var count = 1
                                         ingredients.forEach { ingredient ->
-                                            allMeal.append("strIngredient$count: ${ingredient.name}\nstrMeasure$count: ${ingredient.measure}\n")
+                                            allMealSpan.append("strIngredient$count: ${ingredient.name}\nstrMeasure$count: ${ingredient.measure}\n")
                                             count++
                                         }
-                                        allMeal.append("strSource: ${meal.source}\nstrImageSource: ${meal.imageSource}\nstrCreativeCommonsConfirmed: ${meal.creativeCommonsConfirmed}\ndateModified: ${meal.dateModified}\n")
-                                        allMeal.append("\n\n")
+                                        allMealSpan.append("strSource: ${meal.source}\nstrImageSource: ${meal.imageSource}\nstrCreativeCommonsConfirmed: ${meal.creativeCommonsConfirmed}\ndateModified: ${meal.dateModified}\n")
+                                        allMealSpan.append("\n\n")
                                     }
 
                                 }
                                 retrieveSearchByChar.post {
-                                    retrieveSearchByChar.text = allMeal
+                                    retrieveSearchByChar.text = allMealSpan
                                 }
 
                             }catch (e: Exception){
@@ -176,5 +188,19 @@ class SearchForMealsActivity : AppCompatActivity() {
         }
         return mealsArray
 
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        // Save the variables in a map
+        val savedState = mapOf(
+            "allMeal" to allMeal,
+            "allMealSpan" to allMealSpan
+
+        )
+
+        // Store the map in the bundle
+        outState.putSerializable("savedState", savedState as Serializable)
     }
 }
